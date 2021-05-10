@@ -17,6 +17,7 @@ mod erc20 {
     }
 
     impl Erc20 {
+        #[cfg(not(feature = "ink-as-dependency"))]
         #[ink(constructor)]
         pub fn new(inital_supply: Balance) -> Self {
             let caller = Self::env().caller();
