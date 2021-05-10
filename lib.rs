@@ -14,6 +14,8 @@ mod erc20 {
         total_supply: Balance,
         // The balnce of each user
         balances: ink_storage::collections::HashMap<AccountId, Balance>,
+        // Approval spender on behalf of the message's sender
+        allowances: ink_storage::collections::HashMap<(AccountId, AccountId), Balance>,
     }
 
     #[ink(event)]
@@ -22,6 +24,16 @@ mod erc20 {
         from: Option<AccountId>,
         #[ink(topic)]
         to: Option<AccountId>,
+        #[ink(topic)]
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct Approval {
+        #[ink(topic)]
+        owner: AccountId,
+        #[ink(topic)]
+        spender: AccountId,
         #[ink(topic)]
         value: Balance,
     }
@@ -43,6 +55,7 @@ mod erc20 {
             Self {
                 total_supply: inital_supply,
                 balances: newbalances,
+                allowances: ink_storage::collections::HashMap::new(),
             }
         }
 
