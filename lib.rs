@@ -16,6 +16,13 @@ mod erc20 {
         balances: ink_storage::collections::HashMap<AccountId, Balance>,
     }
 
+    #[ink(event)]
+    pub struct Transfer {
+        from: Option<AccountId>,
+        to: Option<AccountId>,
+        value: Balance,
+    }
+
     impl Erc20 {
         #[cfg(not(feature = "ink-as-dependency"))]
         #[ink(constructor)]
