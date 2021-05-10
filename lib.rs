@@ -18,8 +18,11 @@ mod erc20 {
 
     #[ink(event)]
     pub struct Transfer {
+        #[ink(topic)]
         from: Option<AccountId>,
+        #[ink(topic)]
         to: Option<AccountId>,
+        #[ink(topic)]
         value: Balance,
     }
 
@@ -30,6 +33,13 @@ mod erc20 {
             let caller = Self::env().caller();
             let mut newbalances = ink_storage::collections::HashMap::new();
             newbalances.insert(caller, inital_supply);
+
+            Self::env().emit_event(Transfer {
+                from: None,
+                to: Some(caller),
+                value: inital_supply,
+            });
+
             Self {
                 total_supply: inital_supply,
                 balances: newbalances,
@@ -67,6 +77,12 @@ mod erc20 {
 
             let to_balance = self.balance_of_or_zero(&to);
             self.balances.insert(to, to_balance + value);
+
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                value: value,
+            });
             true
         }
     }
