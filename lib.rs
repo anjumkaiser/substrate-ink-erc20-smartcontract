@@ -32,6 +32,10 @@ mod erc20 {
         pub fn total_supply(&self) -> Balance {
             self.total_supply
         }
+
+        fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
+            *self.balances.get(owner).unwrap_or(&0)
+        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
