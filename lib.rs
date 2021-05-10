@@ -34,6 +34,11 @@ mod erc20 {
             self.total_supply
         }
 
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balance_of_or_zero(&owner)
+        }
+
         fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
             *self.balances.get(owner).unwrap_or(&0)
         }
@@ -55,6 +60,14 @@ mod erc20 {
         fn new_works() {
             let contract = Erc20::new(777);
             assert_eq!(contract.total_supply(), 777);
+        }
+
+        #[ink::test]
+        fn balance_works() {
+            let contract = Erc20::new(100);
+            assert_eq!(contract.total_supply(), 100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 0);
         }
     }
 }
