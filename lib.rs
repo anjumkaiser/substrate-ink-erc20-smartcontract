@@ -75,6 +75,19 @@ mod erc20 {
             self.transfer_from_to(caller, to, value)
         }
 
+        #[ink(message)]
+        pub fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
+            let owner = self.env().caller();
+            self.allowances.insert((owner, spender), value);
+            self.env().emit_event(Approval {
+                owner: owner,
+                spender: spender,
+                value: value,
+            });
+
+            true
+        }
+
         fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
             *self.balances.get(owner).unwrap_or(&0)
         }
