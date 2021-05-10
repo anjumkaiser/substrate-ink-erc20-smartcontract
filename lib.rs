@@ -93,6 +93,24 @@ mod erc20 {
             self.allowance_of_or_zero(&owner, &spender)
         }
 
+        #[ink(message)]
+        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
+            let caller = self.env().caller();
+            let allowance = self.allowance_of_or_zero(&from, &caller);
+            if allowance < value {
+                return false;
+            }
+
+            let transfer_result = self.transfer_from_to(from, to, value);
+            if !transfer_result {
+                return false;
+            }
+
+            self.allowances.insert((from, to), allowance - value);
+
+            true
+        }
+
         fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
             *self.balances.get(owner).unwrap_or(&0)
         }
