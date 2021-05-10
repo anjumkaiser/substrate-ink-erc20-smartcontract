@@ -10,37 +10,27 @@ mod erc20 {
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct Erc20 {
-        /// Stores a single `bool` value on the storage.
-        value: bool,
+        /// Stores total supply
+        total_supply: Balance,
+        // The balnce of each user
+        balances: ink_storage::collections::HashMap<AccountId, Balance>,
     }
 
     impl Erc20 {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+        pub fn new(inital_supply: Balance) -> Self {
+            let caller = Self::env().caller();
+            let mut newbalances = ink_storage::collections::HashMap::new();
+            newbalances.insert(caller, inital_supply);
+            Self {
+                total_supply: inital_supply,
+                balances: newbalances,
+            }
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
-        }
-
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
         #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
         }
     }
 
@@ -57,18 +47,9 @@ mod erc20 {
 
         /// We test if the default constructor does its job.
         #[ink::test]
-        fn default_works() {
-            let erc20 = Erc20::default();
-            assert_eq!(erc20.get(), false);
-        }
-
-        /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut erc20 = Erc20::new(false);
-            assert_eq!(erc20.get(), false);
-            erc20.flip();
-            assert_eq!(erc20.get(), true);
+        fn new_works() {
+            let contract = Erc20::new(777);
+            assert_eq!(contract.total_supply(), 777);
         }
     }
 }
