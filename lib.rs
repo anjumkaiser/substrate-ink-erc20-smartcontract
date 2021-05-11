@@ -106,7 +106,7 @@ mod erc20 {
                 return false;
             }
 
-            self.allowances.insert((from, to), allowance - value);
+            self.allowances.insert((from, caller), allowance - value);
 
             true
         }
@@ -182,6 +182,22 @@ mod erc20 {
             contract.approve(AccountId::from([0x1; 32]), 20);
             contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 10);
             assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 10);
+        }
+
+        #[ink::test]
+        fn allowances_works() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            contract.approve(AccountId::from([0x1; 32]), 200);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 200);
+
+            assert!(contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 50));
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 150);
+
+            assert!(!contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 100));
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 150);
         }
     }
 }
